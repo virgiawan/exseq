@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+import models from '../models/sql';
+import app from '../app';
+
+let seq_config = {};
+if (app.get('env') == 'development'){
+  seq_config = {logging: console.log};
+}
+
+models.sequelize.sync(seq_config).then((object) => {
+  console.log('Database has been created');
+  process.exit();
+}).catch((err) => {
+  console.log(err);
+});
