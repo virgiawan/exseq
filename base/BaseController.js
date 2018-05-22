@@ -1,6 +1,7 @@
 import express from 'express';
 import _ from 'lodash';
 import middlewares from '../utils/middlewares';
+import helpers from '../utils/helpers';
 
 /**
  * Created by virgiawan
@@ -27,14 +28,19 @@ class BaseController {
     this.register(this.actions);
   }
 
-  // middleware for compose json response
+  // middleware for wrap json response
   response(req, res, next){
     return middlewares.exseq.response(req, res, next);
   }
 
   // middleware for build query from url
   query(req, res, next){
-    return middlewares.exseq.queryValidation(req, res, next);
+    return middlewares.exseq.queryBuilder(req, res, next);
+  }
+
+  // middleware for request body validation
+  bodyValidation(req, res, next){
+    return middlewares.exseq.bodyValidation(req, res, next);
   }
 
   /**
@@ -45,7 +51,7 @@ class BaseController {
     _.each(handlers, ({ method, endpoint, flows }) => {
       const verb = method.toLowerCase();
       _.each(flows, (flow) => {
-        this.router[verb](endpoint, this[flow]);
+        this.router[verb](endpoint, helpers.exseq.asyncMiddleware(this[flow]));
       });
     });
   }

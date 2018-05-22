@@ -3,13 +3,14 @@
 import moment from 'moment';
 import config from '../../config/config.json';
 import setting from '../../config/setting.json';
+import Sequelize, {Op} from 'sequelize';
 
 const dateFormat = setting.dateFormat;
 
 export default {
   name: 'exseq',
   exseq: {
-    buildJson: function(resultName, res){
+    buildJson: (resultName, res) => {
       let error;
       if(res.err === undefined){
         error = {}
@@ -59,7 +60,7 @@ export default {
 
       return data;
     },
-    sanitizeQuery: function (paramName, paramValue){
+    sanitizeQuery: (paramName, paramValue) => {
       const santizeParam = {};
       santizeParam[paramName] = paramValue;
       if(paramName === 'range'){
@@ -68,9 +69,9 @@ export default {
         const end = paramValue[paramName]['end'];
 
         santizeParam[paramName] = {
-          $and: [
-            {$gte: moment(start, dateFormat).toDate()},
-            {$lte: moment(end, dateFormat).toDate()},
+          [Op.and]: [
+            {[Op.gte]: moment(start, dateFormat).toDate()},
+            {[Op.lte]: moment(end, dateFormat).toDate()},
           ]
         }
       }
@@ -82,7 +83,7 @@ export default {
         }
         else{
           if(isDateValid){
-            santizeParam[paramName] = {$gte: moment(paramValue, dateFormat).toDate()};
+            santizeParam[paramName] = {[Op.gte]: moment(paramValue, dateFormat).toDate()};
           }
           else{
             if(paramValue === 'true' || paramValue === 'false')
@@ -91,7 +92,7 @@ export default {
               santizeParam[paramName] = null;
             }
             else{
-              santizeParam[paramName] = {$like: '%' + paramValue + '%'};
+              santizeParam[paramName] = {[Op.like]: '%' + paramValue + '%'};
             }
           }
         }
@@ -117,6 +118,13 @@ export default {
       }
 
       return santizeParam[paramName];
+    },
+    asyncMiddleware: (fn) => (req, res, next) => {
+      Promise.resolve(fn(req, res, next)).catch(err => {
+        res.status(res.errorCode || setting.defaultErrorCode);
+        res.err = err;
+        next();
+      });
     }
   }
 };

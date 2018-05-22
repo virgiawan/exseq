@@ -1,4 +1,6 @@
 {
   "dateFormatUrl": "YYYY-MM-DD_HH:mm:ss",
-  "dateFormat": "YYYY-MM-DD HH:mm:ss"
+  "dateFormat": "YYYY-MM-DD HH:mm:ss",
+  "resourcePath": 1,
+  "defaultErrorCode": 500
 }

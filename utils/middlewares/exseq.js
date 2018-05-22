@@ -1,8 +1,7 @@
 import models from '../../models/sql';
 import helpers from '../helpers';
 import _ from 'lodash';
-
-const resourcePathIndex = 1;
+import setting from '../../config/setting.json';
 
 export default {
   name: 'exseq',
@@ -10,7 +9,7 @@ export default {
     /* ======================== */
     /*   BEFORE MAIN FUNCTION   */
     /* ======================== */
-    queryValidation: function(req, res, next){
+    queryBuilder: function(req, res, next){
       const query = {}, tempKeys = {};
 
       // validation offset and limit
@@ -55,8 +54,8 @@ export default {
         }
       }
 
-      query['offset'] = req.query.offset;
-      query['limit'] = (req.query.limit)?req.query.limit:10;
+      query['offset'] = Number((req.query.offset)?req.query.offset:0);
+      query['limit'] = Number((req.query.limit)?req.query.limit:10);
 
       const defaultOrder = [
         ['createdAt','DESC']
@@ -101,7 +100,7 @@ export default {
 
       // console.log(query);
 
-      req.where = query;
+      req.dbQuery = query;
 
       next();
     },
@@ -131,7 +130,7 @@ export default {
       else{
         const arrPath = req.baseUrl.split("/");
         // console.log(arrPath);
-        res.send(helpers.exseq.buildJson(_.camelCase(arrPath[resourcePathIndex]), res));
+        res.send(helpers.exseq.buildJson(_.camelCase(arrPath[setting.resourcePath]), res));
       }
     }
   }

@@ -7,41 +7,77 @@ class UserController extends BaseController {
   get actions(){
     return [
       {method: 'GET', endpoint: '/', flows: ['query', 'getUsers', 'response']},
-      {method: 'GET', endpoint: '/:id', flows: ['getUser']},
-      {method: 'POST', endpoint: '/', flows: ['addUser']},
-      {method: 'PUT', endpoint: '/:id', flows: ['updateUser']},
-      {method: 'DELETE', endpoint: '/:id', flows: ['removeUser']},
+      {method: 'GET', endpoint: '/:id', flows: ['getUser', 'response']},
+      {method: 'POST', endpoint: '/', flows: ['bodyValidation', 'addUser', 'response']},
+      {method: 'PUT', endpoint: '/:id', flows: ['bodyValidation', 'updateUser', 'response']},
+      {method: 'DELETE', endpoint: '/:id', flows: ['removeUser', 'response']},
     ];
   }
 
-  getUsers(req, res, next){
-    models.User.findAll(req.where)
-      .then(user => {
-        res.results = user;
-        res.status(200);
-        next();
-      })
-      .catch(err => {
-        res.status(500);
-        res.err = err;
-        next();
-      });
+  async getUsers(req, res, next){
+    console.log(req.dbQuery);
+
+    if(res.err)
+      return next();
+
+    const users = await models.User.findAll(req.dbQuery);
+    res.results = users;
+    res.status(200);
+    next();
   }
 
-  getUser(req, res, next){
+  async getUser(req, res, next){
+    if(res.err)
+      return next();
 
+    const user = await models.User.findById(req.params.id);
+    if(!user){
+      res.errorCode = 404;
+      throw Error('Not found');
+    }
+    res.results = user;
+    res.status(200);
+    next();
   }
 
-  addUser(req, res, next){
+  async addUser(req, res, next){
+    if(res.err)
+      return next();
 
+    const [data, isCreated] = await models.User.findOrCreate({
+      where: req.body,
+      default: req.body
+    });
+    res.results = data,
+    res.status(200);
+    if(isCreated)
+      res.status(201);
+    next();
   }
 
-  updateUser(req, res, next){
+  async updateUser(req, res, next){
+    if(res.err)
+      return next();
 
+    const affected = await models.User.update(
+      req.body,
+      {where: {id: req.params.id}}
+    );
+    res.results = affected;
+    res.status(200);
+    next();
   }
 
-  removeUser(req, res, next){
+  async removeUser(req, res, next){
+    if(res.err)
+      return next();
     
+    const affected = await models.User.destroy({
+      where: {id: req.params.id}
+    });
+    res.results = affected;
+    res.status(200);
+    next();
   }
 
 }
