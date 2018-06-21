@@ -1,4 +1,3 @@
-import express from 'express';
 import BaseController from '../../base/BaseController';
 import models from '../../models/sql';
 
@@ -6,17 +5,20 @@ class UserController extends BaseController {
 
   get actions(){
     return [
-      {method: 'GET', endpoint: '/', flows: ['query', 'getUsers', 'response']},
-      {method: 'GET', endpoint: '/:id', flows: ['getUser', 'response']},
-      {method: 'POST', endpoint: '/', flows: ['bodyValidation', 'addUser', 'response']},
-      {method: 'PUT', endpoint: '/:id', flows: ['bodyValidation', 'updateUser', 'response']},
-      {method: 'DELETE', endpoint: '/:id', flows: ['removeUser', 'response']},
+      {method: 'GET', endpoint: '/', 
+        flows: ['query', 'getUsers', 'response']},
+      {method: 'GET', endpoint: '/:id', 
+        flows: ['getUser', 'response']},
+      {method: 'POST', endpoint: '/', 
+        flows: ['bodyValidation', 'addUser', 'response']},
+      {method: 'PUT', endpoint: '/:id', 
+        flows: ['bodyValidation', 'updateUser', 'response']},
+      {method: 'DELETE', endpoint: '/:id', 
+        flows: ['removeUser', 'response']},
     ];
   }
 
   async getUsers(req, res, next){
-    console.log(req.dbQuery);
-
     if(res.err)
       return next();
 

@@ -1,11 +1,20 @@
 'use strict';
 
 import moment from 'moment';
+import _ from 'lodash';
 import config from '../../config/config.json';
 import setting from '../../config/setting.json';
 import Sequelize, {Op} from 'sequelize';
 
-const dateFormat = setting.dateFormat;
+const dateFormat = setting.dateFormatUrl;
+const mapOp = {
+  '$and': Op.and,
+  '$or': Op.or,
+  '$gte': Op.gte,
+  '$lte': Op.lte,
+  '$gt': Op.gt,
+  '$lt': Op.lt,
+};
 
 export default {
   name: 'exseq',
@@ -99,21 +108,29 @@ export default {
       }
       else if(typeof(paramValue) === 'object'){
         const tempValue = {};
+        let _outerKey = null;
+
         Object.keys(paramValue).forEach(function(key){
-          tempValue[key] = paramValue[key];
+          _outerKey = (key.includes('$')) ? mapOp[key] : key;
+          tempValue[_outerKey] = paramValue[key];
           if(typeof(paramValue[key]) === 'object'){
-            const valueObject = paramValue[key];
+            let valueObject = paramValue[key];
+            let _key = null;
+
             Object.keys(valueObject).forEach(function(key){
-              valueObject[key] = valueObject[key];
-              if(valueObject[key] === 'NULL' || valueObject[key] === 'null')
-                valueObject[key] = null
+              _key = (key.includes('$')) ? mapOp[key] : key;
+              valueObject[_key] = valueObject[key];
+              valueObject = _.omit(valueObject, [key]);
+              if(valueObject[_key] === 'NULL' || valueObject[_key] === 'null'){
+                valueObject[_key] = null;
+              }
             });
+            tempValue[_outerKey] = valueObject;                          
           }
           else if(paramValue[key] === 'NULL' || paramValue[key] === 'null'){
-            tempValue[key] = null;
+            tempValue[_key] = null;
           }
         });
-        // console.log(tempValue);
         santizeParam[paramName] = tempValue;
       }
 
@@ -125,6 +142,9 @@ export default {
         res.err = err;
         next();
       });
-    }
+    },
+    convertOperator: (key) => {
+      return mapOp[key];
+    },
   }
 };

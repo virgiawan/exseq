@@ -15,7 +15,7 @@ const debug = debugFactory('exseq:server');
  */
 
 // const port = normalizePort(process.env.PORT || '3000');
-const port  = '7000';
+const port  = '3000';
 app.set('port', port);
 
 /**

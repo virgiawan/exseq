@@ -2,6 +2,7 @@ import models from '../../models/sql';
 import helpers from '../helpers';
 import _ from 'lodash';
 import setting from '../../config/setting.json';
+import Sequelize, {Op} from 'sequelize';
 
 export default {
   name: 'exseq',
@@ -37,7 +38,7 @@ export default {
               tempKeys[key] = helpers.exseq.sanitizeQuery(key, tempQuery[key]);
             }
           });
-          const mode = (req.query.mode === 'and' || req.query.mode === undefined)?{$and:tempKeys}:{$or:tempKeys};
+          const mode = (req.query.mode === 'and' || req.query.mode === undefined)?{[Op.and]:tempKeys}:{[Op.or]:tempKeys};
           query['where'] = mode;
         }
         else if(Object.keys(tempQuery).length == 1){
@@ -94,7 +95,7 @@ export default {
             arrInclude.push(models[mdl]);
           }
         });
-        // console.log(arrInclude);
+        // console.log('arrInclude', arrInclude);
         query['include'] = arrInclude;
       }
 
@@ -125,12 +126,12 @@ export default {
     /* ======================= */
     response: function(req, res, next){
       if(req.method === 'PUT' || req.method === 'DELETE'){
-        res.send(helpers.exseq.buildJson('rowsAffected', res));
+        res.json(helpers.exseq.buildJson('rowsAffected', res));
       }
       else{
         const arrPath = req.baseUrl.split("/");
         // console.log(arrPath);
-        res.send(helpers.exseq.buildJson(_.camelCase(arrPath[setting.resourcePath]), res));
+        res.json(helpers.exseq.buildJson(_.camelCase(arrPath[setting.resourcePath]), res));
       }
     }
   }
