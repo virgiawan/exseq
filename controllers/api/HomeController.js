@@ -1,4 +1,3 @@
-import express from 'express';
 import BaseController from '../../base/BaseController';
 
 class HomeController extends BaseController {
@@ -10,7 +9,7 @@ class HomeController extends BaseController {
   }
 
   index(req, res, next){
-    res.send({greeting: 'Hello i\'m virgiawan'});
+    res.send({greeting: 'Hello i\'m exseq'});
   }
 
 }
