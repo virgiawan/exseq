@@ -15,6 +15,7 @@ Exseq is skeleton project using Express.js and Sequelize.js ORM. Exseq designed 
 * Clean routing
 * Parse url query to sequelize query
 * Response object wrapper
+* Jade (Pug) template engine installed
 
 ## Getting Started
 
@@ -113,7 +114,7 @@ $ npm run start
 
   #### 3. `response` Middleware
 
-  * POST and GET response body will be wrapped into this form :
+  * POST and GET response body will be wrapped into this format :
 
   ``` 
   {
@@ -139,7 +140,7 @@ $ npm run start
   }
   ```
 
-  * PUT and DELETE response body will be wrapped into this form :
+  * PUT and DELETE response body will be wrapped into this format :
 
   ``` 
   {
@@ -166,6 +167,7 @@ $ npm run start
 ## Example Code
 
   * `./controllers/UserController.js`
+
   ```javascript
   import BaseController from '../../base/BaseController';
   import models from '../../models/sql';
@@ -186,7 +188,7 @@ $ npm run start
          * If query error the error value can be accesed via `req.err`
          * 
          * #respose
-         * Wrap response object into exseq's response form
+         * Wrap response object into exseq's response format
         */
         {method: 'GET', endpoint: '/', 
           flows: ['query', 'getUsers', 'response']},
@@ -194,7 +196,7 @@ $ npm run start
         /** 
          * GET /users/:id
          * #respose
-         * Wrap response object into exseq's response form
+         * Wrap response object into exseq's response format
         */
         {method: 'GET', endpoint: '/:id', 
           flows: ['getUser', 'response']},
@@ -205,7 +207,7 @@ $ npm run start
          * Check request json body is empty or not. If empty return error message that can be accessed via `req.err`
          * 
          * #respose
-         * Wrap response object into exseq's response form
+         * Wrap response object into exseq's response format
         */
         {method: 'POST', endpoint: '/', 
           flows: ['bodyValidation', 'addUser', 'response']},
@@ -216,16 +218,16 @@ $ npm run start
            * Check request json body is empty or not. If empty return error message that can be accessed via `req.err`
            * 
            * #respose
-           * Wrap response object into exseq's response form
+           * Wrap response object into exseq's response format
           */
         {method: 'PUT', endpoint: '/:id', 
           flows: ['bodyValidation', 'updateUser', 'response']},
+        /** 
+         * DELETE /users/:id
+         * #respose
+         * Wrap response object into exseq's response format
+        */
         {method: 'DELETE', endpoint: '/:id', 
-          /** 
-           * DELETE /users/:id
-           * #respose
-           * Wrap response object into exseq's response form
-          */
           flows: ['removeUser', 'response']},
       ];
     }
@@ -241,7 +243,7 @@ $ npm run start
       const users = await models.User.findAll(req.dbQuery);
       /**
        * #response
-       * Wrap your json response into exseq's json form by pass data value into `res.results`
+       * Wrap your json response into exseq's json format by pass data value into `res.results`
       */
       res.results = users; 
       res.status(200);
@@ -254,12 +256,17 @@ $ npm run start
 
       const user = await models.User.findById(req.params.id);
       if(!user){
-        res.errorCode = 404;
+        /** 
+         * #response
+         * If you want throw error, you should overwrite error response at `response middleware` by pass value into `res.errorCode`
+         * default value set on `./config/setting.json`
+        */
+        res.errorCode = 404; 
         throw Error('Not found'); // throw error, show error message
       }
       /**
        * #response
-       * Wrap your json response into exseq's json form by pass data value into `res.results`
+       * Wrap your json response into exseq's json format by pass data value into `res.results`
       */
       res.results = user;
       res.status(200);
@@ -276,7 +283,7 @@ $ npm run start
       });
       /**
        * #response
-       * Wrap your json response into exseq's json form by pass data value into `res.results`
+       * Wrap your json response into exseq's json format by pass data value into `res.results`
       */
       res.results = data,
       res.status(200);
@@ -295,7 +302,7 @@ $ npm run start
       );
       /**
        * #response
-       * Wrap your json response into exseq's json form by pass data value into `res.results`
+       * Wrap your json response into exseq's json format by pass data value into `res.results`
        * `affected` is integer
       */
       res.results = affected;
@@ -312,7 +319,7 @@ $ npm run start
       });
       /**
        * #response
-       * Wrap your json response into exseq's json form by pass data value into `res.results`
+       * Wrap your json response into exseq's json format by pass data value into `res.results`
        * `affected` is integer
       */
       res.results = affected;
@@ -325,6 +332,28 @@ $ npm run start
   export default {path: '/users', router: new UserController().router};
   ```
 
+  * `./config/setting.json`
+
+  ```javascript
+  {
+    // format for date range query at query url
+    "dateFormatUrl": "YYYY-MM-DD_HH:mm:ss",
+    "dateFormat": "YYYY-MM-DD HH:mm:ss",
+    
+    // resource path index
+    // eg: localhost:3000/<<resource>> => resourcePath: 1
+    // if you want to change your endpoint to: 
+    // eg: localhost:3000/api/v1/<<resource>> => change resourcePath to `resourcePath: 3`
+    "resourcePath": 1,
+    "defaultErrorCode": 500
+  }
+  ```
+
+## Reference
+  
+  * [Sequelize](http://docs.sequelizejs.com/)
+  * [seqeulize-cli](https://github.com/sequelize/cli)
+
 ## Contributing
 
 Contributors are welcome, please fork and send pull requests! If you have any ideas on how to make this project better then please submit an issue.
@@ -332,8 +361,3 @@ Contributors are welcome, please fork and send pull requests! If you have any id
 ## License
 
 [MIT License](http://en.wikipedia.org/wiki/MIT_License)
-
-
-
-
-
