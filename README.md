@@ -222,7 +222,8 @@ $ npm run start
           */
         {method: 'PUT', endpoint: '/:id', 
           flows: ['bodyValidation', 'updateUser', 'response']},
-        /** 
+        
+	/** 
          * DELETE /users/:id
          * #respose
          * Wrap response object into exseq's response format
