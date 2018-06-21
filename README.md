@@ -340,7 +340,7 @@ $ npm run start
     "dateFormatUrl": "YYYY-MM-DD_HH:mm:ss",
     "dateFormat": "YYYY-MM-DD HH:mm:ss",
     
-    // resource path index
+    // resource path index is used by `response` middleware
     // eg: localhost:3000/<<resource>> => resourcePath: 1
     // if you want to change your endpoint to: 
     // eg: localhost:3000/api/v1/<<resource>> => change resourcePath to `resourcePath: 3`
